@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stylish Stopwatch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #8e44ad, #3498db, #1abc9c, #f39c12);
+            background-size: 400% 400%;
+            animation: gradientBG 8s ease infinite;
+            color: #fff;
+        }
+
+        @keyframes gradientBG {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            width: 400px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #12f328, #3498db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #display {
+            font-size: 3.5em;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: linear-gradient(135deg, #1abc9c, #3498db);
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .buttons {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 30px;
+            margin: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(90deg, #e74c3c, #ad44a1);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #3498db, #1abc9c);
+            transform: scale(1.1);
+        }
+        button:focus {
+            outline: none;
+        }
+
+        #laps {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            color: #fff;
+        }
+
+        #laps li {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stopwatch</h1>
+        <div id="display">00:00:00.00</div>
+        <div class="buttons">
+            <button id="startStopBtn">Start</button>
+            <button id="resetBtn">Reset</button>
+            <button id="lapBtn">Lap</button>
+        </div>
+        <ul id="laps"></ul>
+    </div>
+    <script>
+        let startTime = 0;
+        let elapsedTime = 0;
+        let timerInterval;
+        let isRunning = false;
+        let lapCount = 0;
+
+        const display = document.getElementById("display");
+        const startStopBtn = document.getElementById("startStopBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const lapBtn = document.getElementById("lapBtn");
+        const laps = document.getElementById("laps");
+
+        function formatTime(ms) {
+            let totalMilliseconds = ms % 1000;
+            let totalSeconds = Math.floor(ms / 1000);
+            let hours = Math.floor(totalSeconds / 3600);
+            let minutes = Math.floor((totalSeconds % 3600) / 60);
+            let seconds = totalSeconds % 60;
+
+            return (
+                String(hours).padStart(2, "0") + ":" +
+                String(minutes).padStart(2, "0") + ":" +
+                String(seconds).padStart(2, "0") + "." +
+                String(totalMilliseconds).padStart(3, "0").slice(0, 2)
+            );
+        }
+
+        function updateDisplay() {
+            display.textContent = formatTime(elapsedTime);
+        }
+
+        function startStop() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                startStopBtn.textContent = "Start";
+            } else {
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(() => {
+                    elapsedTime = Date.now() - startTime;
+                    updateDisplay();
+                }, 10);
+                startStopBtn.textContent = "Pause";
+            }
+            isRunning = !isRunning;
+        }
+
+        function reset() {
+            clearInterval(timerInterval);
+            elapsedTime = 0;
+            isRunning = false;
+            startStopBtn.textContent = "Start";
+            updateDisplay();
+            laps.innerHTML = "";
+            lapCount = 0;
+        }
+
+        function lap() {
+            if (isRunning) {
+                lapCount++;
+                const lapTime = formatTime(elapsedTime);
+                const lapElement = document.createElement("li");
+                lapElement.textContent = `Lap ${lapCount}: ${lapTime}`;
+                laps.appendChild(lapElement);
+            }
+        }
+
+        startStopBtn.addEventListener("click", startStop);
+        resetBtn.addEventListener("click", reset);
+        lapBtn.addEventListener("click", lap);
+
+        updateDisplay();
+    </script>
+</body>
+</html>
